@@ -326,6 +326,19 @@ require('lazy').setup({
     },
   },
 
+  {
+    'rmagatti/auto-session',
+    lazy = false,
+
+    ---enables autocomplete for opts
+    ---@module "auto-session"
+    ---@type AutoSession.Config
+    opts = {
+      suppressed_dirs = { '~/', '~/Projects', '~/Downloads', '/' },
+      -- log_level = 'debug',
+    },
+  },
+
   -- NOTE: Plugins can specify dependencies.
   --
   -- The dependencies are proper plugin specifications as well - anything
@@ -383,12 +396,20 @@ require('lazy').setup({
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
         --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
-        -- pickers = {}
+        defaults = {
+          file_ignore_patterns = {
+            'node_modules',
+            '.git',
+          },
+          --   mappings = {
+          --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
+          --   },
+        },
+        pickers = {
+          find_files = {
+            find_command = { 'rg', '--ignore', '-L', '--hidden', '--files' },
+          },
+        },
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
@@ -667,48 +688,63 @@ require('lazy').setup({
     end,
   },
 
-  { -- Autoformat
-    'stevearc/conform.nvim',
-    event = { 'BufWritePre' },
-    cmd = { 'ConformInfo' },
-    keys = {
-      {
-        '<leader>f',
-        function()
-          require('conform').format { async = true, lsp_format = 'fallback' }
-        end,
-        mode = '',
-        desc = '[F]ormat buffer',
-      },
-    },
+  {
+    'steverarc/conform.nvim',
     opts = {
-      notify_on_error = false,
-      format_on_save = function(bufnr)
-        -- Disable "format_on_save lsp_fallback" for languages that don't
-        -- have a well standardized coding style. You can add additional
-        -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
-        local lsp_format_opt
-        if disable_filetypes[vim.bo[bufnr].filetype] then
-          lsp_format_opt = 'never'
-        else
-          lsp_format_opt = 'fallback'
-        end
-        return {
-          timeout_ms = 500,
-          lsp_format = lsp_format_opt,
-        }
-      end,
       formatters_by_ft = {
         lua = { 'stylua' },
-        -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
-        --
-        -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        javascript = { 'prettier' },
+      },
+      format_on_save = {
+        timeout_ms = 500,
+        lsp_format = 'fallback',
       },
     },
   },
+
+  --  { -- autoformat
+  --    'stevearc/conform.nvim',
+  --    event = { 'bufwritepre' },
+  --    cmd = { 'ConformInfo' },
+  --    keys = {
+  --      {
+  --        '<leader>f',
+  --        function()
+  --          require('conform').format { async = true, lsp_format = 'fallback' }
+  --        end,
+  --        mode = '',
+  --        desc = '[f]ormat buffer',
+  --      },
+  --    },
+  --    opts = {
+  --      notify_on_error = true,
+  --      format_on_save = function(bufnr)
+  --        -- disable "format_on_save lsp_fallback" for languages that don't
+  --        -- have a well standardized coding style. you can add additional
+  --        -- languages here or re-enable it for the disabled ones.
+  --        local disable_filetypes = { c = true, cpp = true }
+  --        local lsp_format_opt
+  --        if disable_filetypes[vim.bo[bufnr].filetype] then
+  --          lsp_format_opt = 'never'
+  --        else
+  --          lsp_format_opt = 'fallback'
+  --        end
+  --        return {
+  --          timeout_ms = 500,
+  --          lsp_format = lsp_format_opt,
+  --        }
+  --      end,
+  --      formatters_by_ft = {
+  --        lua = { 'stylua' },
+  --        javascript = { 'prettierd' },
+  --        -- conform can also run multiple formatters sequentially
+  --        -- python = { "isort", "black" },
+  --        --
+  --        -- you can use 'stop_after_first' to run the first available formatter from the list
+  --        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+  --      },
+  --    },
+  --  },
 
   { -- Autocompletion
     'hrsh7th/nvim-cmp',
@@ -910,6 +946,14 @@ require('lazy').setup({
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
   },
 
+  {
+    'github/copilot.vim',
+    config = function()
+      vim.g.copilot_no_tab_map = true
+      vim.api.nvim_set_keymap('i', '<C-J>', 'copilot#Accept("<CR>")', { silent = true, expr = true })
+    end,
+  },
+
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
@@ -921,8 +965,8 @@ require('lazy').setup({
   --
   -- require 'kickstart.plugins.debug',
   -- require 'kickstart.plugins.indent_line',
-  -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
+  require 'kickstart.plugins.lint',
+  require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
