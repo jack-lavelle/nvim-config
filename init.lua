@@ -204,6 +204,26 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+-- Added by myself
+-- 3/16/2025
+-- vim.api.nvim_create_user_command('NewTerminal', 'let dir = getcwd() | botright 10split | setl wfh | execute terminal | lcd . dir', {
+--   desc = 'Opens a new terminal window with fixed height of 10',
+-- })
+vim.api.nvim_create_user_command('NewTerminal', function()
+  local dir = vim.fn.getcwd()
+  vim.cmd 'botright 10split'
+  vim.cmd 'setl wfh'
+  vim.cmd "execute 'terminal'"
+end, {
+  desc = 'Opens a new terminal window with fixed height of 10',
+})
+
+vim.api.nvim_create_user_command('GitHistory', '0Gclog', {
+  desc = 'Opens git log in a new window',
+})
+
+----
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
