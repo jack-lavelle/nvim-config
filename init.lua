@@ -972,6 +972,12 @@ require('lazy').setup({
     config = function()
       vim.g.copilot_no_tab_map = true
       vim.api.nvim_set_keymap('i', '<C-J>', 'copilot#Accept("<CR>")', { silent = true, expr = true })
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = { 'markdown' },
+        callback = function()
+          vim.b.copilot_enabled = false
+        end,
+      })
     end,
   },
 
@@ -981,6 +987,21 @@ require('lazy').setup({
     ---@module "ibl"
     ---@type ibl.config
     opts = {},
+  },
+
+  {
+    'windwp/nvim-ts-autotag',
+    event = 'InsertEnter',
+    opts = {
+      enable_close = true, -- Auto close tags
+      enable_rename = true, -- Auto rename pairs of tags
+      enable_close_on_slash = false, -- Auto close on trailing </
+      per_filetype = {
+        ['html'] = {
+          enable_close = false,
+        },
+      },
+    },
   },
 
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
